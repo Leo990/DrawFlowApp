@@ -1,7 +1,7 @@
 <template>
     <div>
-        <label for="operator"></label>
-        <input placeholder="Operador aritmetico" class="w-100" type="text" name="operator" id="operator">
+        <span>Operator</span>
+        <input placeholder="Operador aritmetico" class="w-100" type="text" name="operator" id="operator" df-operator>
     </div>
 </template>
 <script>

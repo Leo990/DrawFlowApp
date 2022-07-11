@@ -1,6 +1,6 @@
 <template>
      <div>
-      <label for="Assign">Assign</label>
+      <span>Assign</span>
      </div>
 </template>
 <script>

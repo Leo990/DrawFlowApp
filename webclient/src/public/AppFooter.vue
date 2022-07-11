@@ -10,7 +10,7 @@
           <span class="fs-5">Drawflow</span>
         </a>
         <ul class="list-unstyled small text-muted">
-          <li class="mb-2">Designed and built with all the love in the world by Leonardo Sanchez Camacho.</li>
+          <li class="mb-2">Designed and built by Leonardo Sanchez Camacho.</li>
           <li class="mb-2">Currently v1.0.0.</li>
         </ul>
       </div>

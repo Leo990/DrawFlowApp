@@ -1,6 +1,6 @@
 <template>
     <div>
-         <label for="data">Statement Sequence</label>
+         <span>Statement Sequence</span>
     </div>
 </template>
 <script>

@@ -1,7 +1,7 @@
 <template>
     <div>
-      <input class="w-100" placeholder="Tipo de dato" type="text" name="type" id="type">
-      <input class="w-100" placeholder="Valor" type="text" name="value" id="value">
+      <span>Variable</span><br>
+      <input class="col-s2" placeholder="Name" type="text" name="name" id="name" df-name>
     </div>
 </template>
 <script>

@@ -1,0 +1,24 @@
+{
+    "drawflow": {
+        "Home": {
+            "data": {
+                "1": {
+                    "id": 1,
+                    "name": "block",
+                    "data": {},
+                    "class": "block",
+                    "html": "block",
+                    "typenode": "vue",
+                    "inputs": {},
+                    "outputs": {
+                        "output_1": {
+                            "connections": []
+                        }
+                    },
+                    "pos_x": 18,
+                    "pos_y": 244
+                }
+            }
+        }
+    }
+}
