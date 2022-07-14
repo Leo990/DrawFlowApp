@@ -71,7 +71,7 @@ import ifSt from './components/IfBody.vue'
 import operator from './components/Operator.vue'
 import variable from './components/Variable.vue'
 
-import data from './assets/base.json'
+import data from './assets/example_original.json'
 
 export default {
   mounted() {
@@ -104,7 +104,7 @@ export default {
           this.editor.addNode("block", 0, 1, evt.clientX, evt.clientY, "block", {}, typeOfNode, "vue");
           break;
         case "conditional":
-          this.editor.addNode("conditional", 1, 4, evt.clientX, evt.clientY, "conditional", { type: "" }, typeOfNode, "vue");
+          this.editor.addNode("conditional", 1, 2, evt.clientX, evt.clientY, "conditional", { type: "" , variable :"", constant : ""}, typeOfNode, "vue");
           break;
         case "constant":
           this.editor.addNode("constant", 1, 0, evt.clientX, evt.clientY, "constant", { value: "" }, typeOfNode, "vue");
