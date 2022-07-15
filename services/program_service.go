@@ -3,13 +3,13 @@ package services
 import (
 	"DrawFlowApp/dao"
 	"DrawFlowApp/models"
+	"os/exec"
 
 	"bufio"
 	"context"
 	"encoding/json"
 	"io"
 	"log"
-	"os/exec"
 
 	"github.com/dgraph-io/dgo/v2"
 	"github.com/dgraph-io/dgo/v2/protos/api"
@@ -56,13 +56,15 @@ func (ps ProgramService) Store(new_program []byte) error {
 }
 func (ps ProgramService) Execute(execute_program []byte) string {
 	var program models.Program
-	path := "DrawFlowApp/files/program.py"
+	path := "./files/program.py"
 
 	json.Unmarshal(execute_program, &program)
 
-	dao.WriteProgram(program.WriteProgram(), path)
+	strProgram := program.WriteProgram()
 
-	cmd := exec.Command("python", path)
+	dao.WriteProgram(strProgram, path)
+
+	cmd := exec.Command("python", "D:/leona/Documents/Projects/Go/src/DrawFlowApp/files/program.py")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		panic(err)

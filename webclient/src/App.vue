@@ -47,16 +47,18 @@
         <div id="drawflow" @drop="drop($event)" @dragover.prevent @dragenter.prevent></div>
       </div>
       <div class="col-1">
+        <button class="btn btn-success" @click="executeProgram()">Ejecutar programa</button>
       </div>
     </div>
   </div>
-  <button class="btn btn-success" @click="exportProgram()">Exportar programa</button>
   <appfooter />
 </template>
 
 <script>
 import Drawflow from 'drawflow'
 import { h, getCurrentInstance, render } from 'vue'
+
+import {executeProgram, storeProgram} from './services/apiService'
 
 import appnavbar from './public/AppNavbar.vue'
 import appfooter from './public/AppFooter.vue'
@@ -71,7 +73,7 @@ import ifSt from './components/IfBody.vue'
 import operator from './components/Operator.vue'
 import variable from './components/Variable.vue'
 
-import data from './assets/example_original.json'
+import base from './assets/base.json'
 
 export default {
   mounted() {
@@ -84,7 +86,7 @@ export default {
     this.registerNodes()
 
     this.editor.start();
-    this.editor.import(data)
+    this.editor.import(base)
   },
   methods: {
     drop(evt) {
@@ -141,6 +143,10 @@ export default {
       this.editor.registerNode("if", ifSt);
       this.editor.registerNode("else", elseSt);
       this.editor.registerNode("for", forLoop);
+    },
+    executeProgram(){
+      let data_json = this.editor.export()
+      executeProgram(data_json)
     }
   },
   components: { appnavbar: appnavbar, appfooter: appfooter }

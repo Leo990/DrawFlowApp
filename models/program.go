@@ -37,8 +37,9 @@ func (p Program) Compare(node Node) string {
 	case "conditional":
 		a += p.ProgramConditional(node)
 	case "assign":
+		a += p.ProgramAssignements(node) + "\n"
 	case "operator":
-		a += p.ProgramAssignements(node)
+		a += p.ProgramAssignements(node) + "\n"
 
 	}
 	return a
@@ -54,20 +55,20 @@ func (p Program) ProgramLoopFor(node Node) string {
 		}
 		aux_node := p.FindNode(Id)
 		val := p.Compare(aux_node)
-		newVal := strings.ReplaceAll(val, "\n", "\n\t")
-		a += newVal
+		a += val
 	}
-	return a
+	return strings.ReplaceAll(a, "\n", "\n\t")
 }
 
 func (p Program) ProgramConditional(node Node) string {
-	a := "if" + node.Data["variable"] + node.Data["type"] + node.Data["constant"] + ":"
+	fmt.Println(node.Data)
+	a := "if " + node.Data["variable"] + node.Data["type"] + node.Data["constant"] + ":\n"
 	Id, err := strconv.Atoi(node.Outputs[0].Connections[0].Node)
 	if err != nil {
 		fmt.Errorf(err.Error())
 	}
 	if_st := p.FindNode(Id)
-	a += p.ProgramIf(if_st) + "\nelse:"
+	a += p.ProgramIf(if_st) + "else:\n"
 	Id, err = strconv.Atoi(node.Outputs[1].Connections[0].Node)
 	if err != nil {
 		fmt.Errorf(err.Error())
@@ -87,9 +88,9 @@ func (p Program) ProgramIf(node Node) string {
 			fmt.Errorf(err.Error())
 		}
 		AuxNode := p.FindNode(Id)
-		a += "\n" + p.Compare(AuxNode)
+		a += "\t" + p.Compare(AuxNode) + "\n"
 	}
-	return strings.ReplaceAll(a, "\n", "\n\t")
+	return a
 }
 
 func (p Program) ProgramElse(node Node) string {
@@ -101,10 +102,10 @@ func (p Program) ProgramElse(node Node) string {
 			fmt.Errorf(err.Error())
 		}
 		AuxNode := p.FindNode(Id)
-		a += "\n" + p.Compare(AuxNode)
+		a += "\t" + p.Compare(AuxNode) + "\n"
 	}
 
-	return strings.ReplaceAll(a, "\n", "\n\t")
+	return a
 }
 func (p Program) ProgramAssignements(node Node) string {
 	a := ""

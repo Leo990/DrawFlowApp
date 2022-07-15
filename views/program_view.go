@@ -19,7 +19,7 @@ func (rs ProgramResources) Routes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Post("/save", rs.Store) // POST /posts - Create a new post.
-	r.Get("/execute", rs.Execute)
+	r.Post("/execute", rs.Execute)
 	// r.Get("/", rs.Index) // GET /posts - Read a list of posts.
 
 	// r.Route("/{id}", func(r chi.Router) {

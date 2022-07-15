@@ -1,6 +1,6 @@
 <template>
     <div>
-        <span>If Statement</span>
+        <span>Else Statement</span>
     </div>
 </template>
 <script>
