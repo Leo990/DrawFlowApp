@@ -1,35 +1,37 @@
 import axios from 'axios'
 
-const BASE_URL = 'http://localhost:8080'
+const BASE_URL = 'http://localhost:8082'
 
 var executeProgram = (program) => {
     let data = castProgram(program)
     var dataJson
-    axios.post(`${BASE_URL}/programs/execute`, data).then(function(res) {
-            if (res.status == 200) {
-                dataJson = res.data;
-            }
-            console.log(res);
-        })
-        .catch(function(err) {
-            dataJson = err
-        })
-    return dataJson
+        /* console.log(data);
+        axios.post(`${BASE_URL}/programs/execute`, data).then(function(res) {
+                if (res.status == 200) {
+                    dataJson = res.data;
+                }
+                console.log(res);
+            })
+            .catch(function(err) {
+                dataJson = err
+            })
+        return dataJson */
 
 }
 
 var storeProgram = (program) => {
-    data = castProgram(program)
-    axios.post(`${BASE_URL}/programs/save`, data).then(function(res) {
-            if (res.status == 200) {
-                dataJson = "res.data";
-            }
-        })
-        .catch(function(err) {
-            dataJson = err
-        })
+    let data = castProgram(program)
+        /* var dataJson
+        axios.post(`${BASE_URL}/programs/save`, data).then(function(res) {
+                if (res.status == 200) {
+                    dataJson = "res.data";
+                }
+            })
+            .catch(function(err) {
+                dataJson = err
+            })
 
-    return dataJson
+        return dataJson */
 
 }
 
