@@ -3,13 +3,14 @@ package services
 import (
 	"DrawFlowApp/dao"
 	"DrawFlowApp/models"
-	"os/exec"
 
 	"bufio"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
+	"os/exec"
 
 	"github.com/dgraph-io/dgo/v2"
 	"github.com/dgraph-io/dgo/v2/protos/api"
@@ -17,46 +18,69 @@ import (
 )
 
 type ProgramService struct {
-	URL string
 }
 
-func (ps ProgramService) ConnectToDatabase() (*dgo.Txn, *grpc.ClientConn, context.Context) {
+func ConnectToDatabase() (*dgo.Txn, *grpc.ClientConn, context.Context) {
 	ctx := context.TODO()
 
-	/* Conexion a la base de datos "localhost:9080" */
-	conn, err := grpc.Dial(ps.URL, grpc.WithInsecure())
+	/* Conexion a la base de datos "https://blue-surf-590978.us-east-1.aws.cloud.dgraph.io/graphql" */
+	conn, err := grpc.Dial("localhost:9080", grpc.WithInsecure())
 	if err != nil {
 		log.Fatal("failed to dial ", err)
 	}
-	defer conn.Close()
+	//defer conn.Close()
 	dgraphClient := dgo.NewDgraphClient(api.NewDgraphClient(conn))
 
+	if err != nil {
+		log.Fatal("failed to dial ", err)
+	}
+
 	txn := dgraphClient.NewTxn()
-	defer txn.Commit(ctx)
 
 	return txn, conn, ctx
 }
 
-func (ps ProgramService) Store(new_program []byte) error {
-	txn, conn, ctx := ps.ConnectToDatabase()
+func (ps ProgramService) Index() (map[string]interface{}, error) {
+	txn, _, ctx := ConnectToDatabase()
+
+	q := `{
+		programs(func: has(nodes)) {
+		uid
+		program_name
+		}
+		}`
+
+	data := map[string]interface{}{}
+
+	res, err := txn.Query(ctx, q)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		json.Unmarshal(res.GetJson(), &data)
+	}
+
+	return data, err
+}
+
+func (ps ProgramService) Store(new_program []byte) (*api.Response, error) {
+	txn, _, ctx := ConnectToDatabase()
 
 	mu := &api.Mutation{
 		SetJson: new_program,
 	}
 
-	_, err := txn.Mutate(ctx, mu)
+	req := &api.Request{CommitNow: true, Mutations: []*api.Mutation{mu}}
 
-	conn.Close()
-
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-	return nil
+	res, err := txn.Do(ctx, req)
+	return res, err
 }
-func (ps ProgramService) Execute(execute_program []byte) string {
+
+func (ps ProgramService) Execute(execute_program []byte) (map[string]string, error) {
 	var program models.Program
 	path := "./files/program.py"
+
+	response := map[string]string{}
 
 	json.Unmarshal(execute_program, &program)
 
@@ -74,26 +98,92 @@ func (ps ProgramService) Execute(execute_program []byte) string {
 		panic(err)
 	}
 	err = cmd.Start()
-	if err != nil {
-		panic(err)
-	}
 
-	response := copyOutput(stdout)
+	response["code"] = strProgram
+	response["output"] = copyOutput(stdout)
 	cmd.Wait()
 
-	return response
-
-}
-func (ps ProgramService) Index() {
-
+	return response, err
 }
 
-func (ps ProgramService) Update(id string, update_program models.Program) {
+/* func (ps ProgramService) Update(id string, update_program []byte) (*api.Response, error) {
+	txn, _, ctx := ConnectToDatabase()
+	q := `query program($id : string) {
+			program(func: uid($id)) {
+				uid
+			}
+		}`
 
-}
+	data := map[string]interface{}{}
 
-func (ps ProgramService) Show(id string) {
+	json.Unmarshal(update_program, &data)
 
+	data["uid"] = id
+
+	a, err := json.Marshal(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	mu := &api.Mutation{
+		SetJson: a,
+	}
+
+	req := &api.Request{
+		Query:     q,
+		Vars:      map[string]string{"$id": id},
+		Mutations: []*api.Mutation{mu},
+		CommitNow: true,
+	}
+
+	res, err := txn.Do(ctx, req)
+	return res, err
+} */
+
+func (ps ProgramService) Show(id string) (map[string]interface{}, error) {
+	txn, _, ctx := ConnectToDatabase()
+
+	q := `query program($id : string) {
+		program(func: uid($id)) {
+		 uid
+			program_name
+		 nodes
+		   {
+			 id
+			   name
+		   data
+		   class
+		   html
+		   typenode
+		   inputs {
+				   connections{
+				   node
+			   input
+			 }
+		   }
+		   outputs{
+			   connections {
+				   node
+			 output
+		   }
+		   }
+		   pos_x
+		   pos_y
+		 }
+	   }
+	   }`
+
+	data := map[string]interface{}{}
+
+	res, err := txn.QueryWithVars(ctx, q, map[string]string{"$id": id})
+
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		json.Unmarshal(res.GetJson(), &data)
+	}
+
+	return data, err
 }
 
 func copyOutput(r io.Reader) string {

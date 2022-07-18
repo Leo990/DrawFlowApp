@@ -7,9 +7,9 @@ import (
 )
 
 type Program struct {
-	Uid   string   `json:"uid,omitempty"`
-	Nodes []Node   `json:"nodes,omitempty"`
-	DType []string `json:"dgraph.type,omitempty"`
+	Uid   string `json:"uid,omitempty"`
+	Name  string `json:"name,omitempty"`
+	Nodes []Node `json:"nodes,omitempty"`
 }
 
 func (p Program) WriteProgram() string {

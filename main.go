@@ -13,7 +13,7 @@ import (
 
 func main() {
 
-	port := "8080"
+	port := "8082"
 
 	if fromEnv := os.Getenv("PORT"); fromEnv != "" {
 		port = fromEnv
@@ -36,7 +36,7 @@ func main() {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 
-	r.Mount("/programs", views.ProgramResources{}.Routes())
+	r.Mount("/programs", views.ProgramView{}.Routes())
 
 	log.Fatal(http.ListenAndServe(":"+port, r))
 
