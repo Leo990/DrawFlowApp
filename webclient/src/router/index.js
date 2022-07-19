@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import DrawFlowView from '../views/DrawFlowView.vue'
+import EditorView from '../views/EditorView.vue'
 import HomeView from '../views/HomeView.vue'
 import NotFoundView from '../views/NotFoundView.vue'
 
@@ -17,9 +17,10 @@ const router = createRouter({
             component: HomeView
         },
         {
-            path: '/draw-flow',
-            name: 'drawflow',
-            component: DrawFlowView
+            path: '/editor/:id?',
+            name: 'editor',
+            component: EditorView,
+            props: true
         },
     ]
 })

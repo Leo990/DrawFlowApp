@@ -3,25 +3,41 @@ import axios from 'axios'
 const BASE_URL = 'http://localhost:8082'
 
 var executeProgram = (program) => {
+    console.log(program);
+    /* 
     let data = castProgram(program)
-    var dataJson
-        /* console.log(data);
-        axios.post(`${BASE_URL}/programs/execute`, data).then(function(res) {
-                if (res.status == 200) {
-                    dataJson = res.data;
-                }
-                console.log(res);
-            })
-            .catch(function(err) {
-                dataJson = err
-            })
-        return dataJson */
+    let dataJson
+    console.log(data);
+    axios.post(`${BASE_URL}/programs/execute`, data).then(function(res) {
+        if (res.status == 200) {
+            dataJson = res.data;
+        }
+        console.log(res);
+    })
+    .catch(function(err) {
+        dataJson = err
+    })
+    return dataJson */
 
 }
 
+var indexProgram = () => {
+    return axios.get(`${BASE_URL}/programs`)
+}
+
+var showProgram = (id) => {
+    return axios.get(`${BASE_URL}/programs/${id}`)
+}
+
+var removeProgram = (uid) => {
+    console.log(`El programa con id ${uid} ha sido eliminado correctamente`);
+}
+
 var storeProgram = (program) => {
+    console.log(program);
+    /* 
     let data = castProgram(program)
-        /* var dataJson
+        var dataJson
         axios.post(`${BASE_URL}/programs/save`, data).then(function(res) {
                 if (res.status == 200) {
                     dataJson = "res.data";
@@ -68,5 +84,8 @@ function inAndOut(node) {
 
 export {
     executeProgram,
-    storeProgram
+    storeProgram,
+    indexProgram,
+    removeProgram,
+    showProgram
 }
