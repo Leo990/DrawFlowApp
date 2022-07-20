@@ -1,7 +1,7 @@
 package main
 
 import (
-	"DrawFlowApp/views"
+	"DrawFlowApp/controllers"
 
 	"log"
 	"net/http"
@@ -36,7 +36,7 @@ func main() {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 
-	r.Mount("/programs", views.ProgramView{}.Routes())
+	r.Mount("/programs", controllers.ProgramController{}.Routes())
 
 	log.Fatal(http.ListenAndServe(":"+port, r))
 

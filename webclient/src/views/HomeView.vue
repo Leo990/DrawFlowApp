@@ -25,11 +25,6 @@
                             <span class="material-icons">
                                 play_arrow
                             </span>
-                        </a>&nbsp;
-                        <a class="btn btn-danger" @click="deleteProgram(program.uid)">
-                            <span class="material-icons">
-                                close
-                            </span>
                         </a>
                     </div>
                 </div>
@@ -38,7 +33,7 @@
     </div>
 </template>
 <script>
-import { indexProgram, removeProgram } from '../services/apiService'
+import { indexProgram } from '../services/apiService'
 import router from '../router';
 export default {
     mounted(){
@@ -54,9 +49,6 @@ export default {
     methods: {
         redirectToEditor(id) {
             router.push(`/editor/${id}`)
-        },
-        deleteProgram(id){
-            removeProgram(id)
         }
     },
 }

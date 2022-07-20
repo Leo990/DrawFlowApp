@@ -106,72 +106,53 @@ func (ps ProgramService) Execute(execute_program []byte) (map[string]string, err
 	return response, err
 }
 
-/* func (ps ProgramService) Update(id string, update_program []byte) (*api.Response, error) {
-	txn, _, ctx := ConnectToDatabase()
-	q := `query program($id : string) {
-			program(func: uid($id)) {
-				uid
-			}
-		}`
-
-	data := map[string]interface{}{}
-
-	json.Unmarshal(update_program, &data)
-
-	data["uid"] = id
-
-	a, err := json.Marshal(data)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	mu := &api.Mutation{
-		SetJson: a,
-	}
-
-	req := &api.Request{
-		Query:     q,
-		Vars:      map[string]string{"$id": id},
-		Mutations: []*api.Mutation{mu},
-		CommitNow: true,
-	}
-
-	res, err := txn.Do(ctx, req)
-	return res, err
-} */
-
 func (ps ProgramService) Show(id string) (map[string]interface{}, error) {
 	txn, _, ctx := ConnectToDatabase()
 
 	q := `query program($id : string) {
-		program(func: uid($id)) {
-		 uid
-			program_name
-		 nodes
-		   {
-			 id
-			   name
-		   data
-		   class
-		   html
-		   typenode
-		   inputs {
-				   connections{
-				   node
-			   input
-			 }
-		   }
-		   outputs{
-			   connections {
-				   node
-			 output
-		   }
-		   }
-		   pos_x
-		   pos_y
-		 }
-	   }
-	   }`
+		program(func: uid($id))
+		{
+		uid
+		program_name
+		nodes
+		{
+			id
+			name
+			data
+			{
+				variable
+				type
+				constant
+				value
+				begin
+				end
+				operator
+				name
+			}
+			class
+			html
+			typenode
+			inputs
+			{
+				connections
+				{
+					node
+					input
+				}
+			}
+			outputs
+			{
+				connections
+				{
+					node
+					output
+				}
+			}
+		pos_x
+		pos_y
+		}
+	}
+	}`
 
 	data := map[string]interface{}{}
 

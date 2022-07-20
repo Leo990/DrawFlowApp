@@ -1,91 +1,119 @@
-import axios from 'axios'
+import axios from "axios";
 
-const BASE_URL = 'http://localhost:8082'
+const BASE_URL = "http://localhost:8082";
 
 var executeProgram = (program) => {
     console.log(program);
     /* 
-    let data = castProgram(program)
-    let dataJson
-    console.log(data);
-    axios.post(`${BASE_URL}/programs/execute`, data).then(function(res) {
-        if (res.status == 200) {
-            dataJson = res.data;
-        }
-        console.log(res);
-    })
-    .catch(function(err) {
-        dataJson = err
-    })
-    return dataJson */
-
-}
+        let data = castProgram(program)
+        let dataJson
+        console.log(data);
+        axios.post(`${BASE_URL}/programs/execute`, data).then(function(res) {
+            if (res.status == 200) {
+                dataJson = res.data;
+            }
+            console.log(res);
+        })
+        .catch(function(err) {
+            dataJson = err
+        })
+        return dataJson */
+};
 
 var indexProgram = () => {
-    return axios.get(`${BASE_URL}/programs`)
-}
+    return axios.get(`${BASE_URL}/programs`);
+};
 
 var showProgram = (id) => {
-    return axios.get(`${BASE_URL}/programs/${id}`)
-}
-
-var removeProgram = (uid) => {
-    console.log(`El programa con id ${uid} ha sido eliminado correctamente`);
-}
+    return axios.get(`${BASE_URL}/programs/${id}`);
+};
 
 var storeProgram = (program) => {
-    console.log(program);
-    /* 
-    let data = castProgram(program)
-        var dataJson
-        axios.post(`${BASE_URL}/programs/save`, data).then(function(res) {
-                if (res.status == 200) {
-                    dataJson = "res.data";
-                }
-            })
-            .catch(function(err) {
-                dataJson = err
-            })
+    let data = drawFlowToProgram(program);
 
-        return dataJson */
+    return axios.post(`${BASE_URL}/programs/save`, data);
+};
 
-}
-
-function castProgram(program) {
-    var nodes = program["drawflow"]["Home"]["data"]
-    var nodeList = []
+function drawFlowToProgram(drawflow) {
+    let nodes = drawflow["data"];
+    let nodeList = [];
     for (let clave in nodes) {
-        inAndOut(nodes[clave])
-        nodeList.push(nodes[clave])
+        console.log(nodes[clave]);
+        inAndOut(nodes[clave]);
+        nodeList.push(nodes[clave]);
     }
 
-    return { "nodes": nodeList }
+    let castedProgram = {
+        program_name: drawflow.program_name,
+        nodes: nodeList,
+    };
+
+    if (drawflow["uid"] != "") {
+        castedProgram["uid"] = drawflow["uid"];
+    }
+    return castedProgram;
+}
+
+var programToDrawFlow = (program) => {
+    let drawflow = {
+        drawflow: {
+            Home: {
+                data: {},
+            },
+        },
+    };
+    program["nodes"].forEach((node) => {
+        inAndOutReverse(node);
+        drawflow.drawflow.Home.data[`${node.id}`] = node;
+    });
+    return drawflow;
+};
+
+function inAndOutReverse(node) {
+    let inputs = {};
+    let outputs = {};
+
+    if (node["inputs"] != undefined) {
+        node["inputs"].forEach((input, index) => {
+            inputs[`input_${index + 1}`] = input;
+        });
+    }
+
+    if (node["outputs"] != undefined) {
+        node["outputs"].forEach((output, index) => {
+            if (node["data"] == undefined) {
+                node["data"] = {}
+            }
+            outputs[`output_${index + 1}`] = output;
+        });
+    }
+    node["inputs"] = inputs;
+    node["outputs"] = outputs;
 }
 
 function inAndOut(node) {
-    let inputs = []
-    let outputs = []
+    let inputs = [];
+    let outputs = [];
 
-    let outputJson = node["outputs"]
+    let outputJson = node["outputs"];
 
     for (let clave in outputJson) {
-        outputs.push(outputJson[clave])
+        outputs.push(outputJson[clave]);
     }
 
-    let inputJson = node["inputs"]
+    let inputJson = node["inputs"];
 
     for (let clave in inputJson) {
-        inputs.push(inputJson[clave])
+        inputs.push(inputJson[clave]);
     }
-
-    node["inputs"] = inputs
-    node["outputs"] = outputs
+    node["inputs"] = inputs;
+    node["outputs"] = outputs;
 }
 
 export {
     executeProgram,
     storeProgram,
     indexProgram,
-    removeProgram,
-    showProgram
-}
+    showProgram,
+    programToDrawFlow,
+};

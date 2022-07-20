@@ -11,6 +11,11 @@
                     play_arrow
                 </span>
             </a>
+            <form @submit.prevent class="d-flex position-relative">
+                <span></span>
+                <input v-model="program_name" class="form-control form-control-sm h-50 position-relative translate-middle-y top-50" type="text" placeholder="Program Name"
+                    aria-label="name">
+            </form>
         </nav>
     </div>
     <div class="container py-2">
@@ -71,7 +76,7 @@
 
 </template>
 <script>
-import { executeProgram, storeProgram, showProgram } from '../services/apiService'
+import { executeProgram, storeProgram, showProgram, programToDrawFlow } from '../services/apiService'
 import Drawflow from 'drawflow'
 import { h, getCurrentInstance, render } from 'vue'
 
@@ -85,7 +90,7 @@ import ifSt from '../components/ast/IfBody.vue'
 import operator from '../components/ast/Operator.vue'
 import variable from '../components/ast/Variable.vue'
 
-import base from '../assets/base.json'
+import base from '../assets/example_original.json'
 export default {
     mounted() {
         var drawflowID = document.getElementById("drawflow");
@@ -99,16 +104,14 @@ export default {
         this.editor.start();
 
         this.id == "" ? this.editor.import(base) : showProgram(this.id).then((res) => {
-            console.log(res.data["program"][0])
+            let programRes = Object.assign({}, res.data["program"][0])
+            this.program_name = programRes["program_name"];
+            let drawflow = programToDrawFlow(programRes)
+            console.log(drawflow);
+            this.editor.import(drawflow)
         })
     },
     methods: {
-        executeProgram() {
-            console.log(this.exportProgram());
-        },
-        storeProgram() {
-            console.log(this.exportProgram());
-        },
         drop(evt) {
             this.createNode(evt.dataTransfer.getData("typeId"), evt)
         },
@@ -116,12 +119,16 @@ export default {
             evt.dataTransfer.dropEffect = "move";
             evt.dataTransfer.effectAllowed = "move";
             evt.dataTransfer.setData("typeId", evt.target.getAttribute("data-node"));
+        }
+        ,
+        executeProgram() {
+            console.log(this.exportProgram());
         },
         createNode(typeOfNode, evt) {
             let pos_x = evt.clientX
             let pos_y = evt.clientY
-            pos_x = pos_x * ( this.editor.precanvas.clientWidth / (this.editor.precanvas.clientWidth * this.editor.zoom)) - (this.editor.precanvas.getBoundingClientRect().x * ( this.editor.precanvas.clientWidth / (this.editor.precanvas.clientWidth * this.editor.zoom)));
-            pos_y = pos_x * ( this.editor.precanvas.clientHeight / (this.editor.precanvas.clientHeight * this.editor.zoom)) - (this.editor.precanvas.getBoundingClientRect().y * ( this.editor.precanvas.clientHeight / (this.editor.precanvas.clientHeight * this.editor.zoom)));
+            pos_x = pos_x * (this.editor.precanvas.clientWidth / (this.editor.precanvas.clientWidth * this.editor.zoom)) - (this.editor.precanvas.getBoundingClientRect().x * (this.editor.precanvas.clientWidth / (this.editor.precanvas.clientWidth * this.editor.zoom)));
+            pos_y = pos_x * (this.editor.precanvas.clientHeight / (this.editor.precanvas.clientHeight * this.editor.zoom)) - (this.editor.precanvas.getBoundingClientRect().y * (this.editor.precanvas.clientHeight / (this.editor.precanvas.clientHeight * this.editor.zoom)));
             switch (typeOfNode) {
                 case "assign":
                     this.editor.addNode("assign", 1, 2, pos_x, pos_y, "assign", {}, typeOfNode, "vue");
@@ -165,10 +172,21 @@ export default {
             this.editor.registerNode("else", elseSt);
             this.editor.registerNode("for", forLoop);
         },
+        storeProgram() {
+            storeProgram(this.exportProgram())
+                .then(function (res) {
+                    if (res.status == 200) {
+                        console.log(res.data);
+                    }
+                })
+                .catch(function (err) {
+                    console.log(err)
+                })
+        },
         exportProgram() {
             let program = this.editor.export()["drawflow"]["Home"]
-            program["program_name"] = "pepe"
-            program["id"] = this.id
+            program["program_name"] = this.program_name
+            program["uid"] = this.id
             return program
         }
     },
@@ -177,7 +195,8 @@ export default {
     },
     data() {
         return {
-            program : []
+            program: [],
+            program_name : "Program"
         }
     },
 }
@@ -209,6 +228,7 @@ body {
         background-color: #343a40;
         transition: transform .3s ease-in-out, visibility .3s ease-in-out;
     }
+
     .offcanvas-collapse.open {
         visibility: visible;
         transform: translateX(-100%);

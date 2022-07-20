@@ -1,4 +1,4 @@
-package views
+package controllers
 
 import (
 	"DrawFlowApp/services"
@@ -11,11 +11,11 @@ import (
 	"github.com/go-chi/chi"
 )
 
-type ProgramView struct {
+type ProgramController struct {
 	program_service services.ProgramService
 }
 
-func (rs ProgramView) Routes() chi.Router {
+func (rs ProgramController) Routes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", rs.Index)
@@ -25,13 +25,12 @@ func (rs ProgramView) Routes() chi.Router {
 	r.Route("/{id}", func(r chi.Router) {
 		r.Use(ProgramCtx)
 		r.Get("/", rs.Show)
-		// r.Put("/", rs.Update)
 	})
 
 	return r
 }
 
-func (rs ProgramView) Index(w http.ResponseWriter, r *http.Request) {
+func (rs ProgramController) Index(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
@@ -53,7 +52,7 @@ func (rs ProgramView) Index(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (rs ProgramView) Store(w http.ResponseWriter, r *http.Request) {
+func (rs ProgramController) Store(w http.ResponseWriter, r *http.Request) {
 
 	body, err := io.ReadAll(r.Body)
 
@@ -71,13 +70,13 @@ func (rs ProgramView) Store(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	if _, err := w.Write([]byte("Se ha añadido un nuevo registro con id 123456789")); err != nil {
+	if _, err := w.Write([]byte("Se ha accedido correctamente a la base de datos")); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
-func (rs ProgramView) Execute(w http.ResponseWriter, r *http.Request) {
+func (rs ProgramController) Execute(w http.ResponseWriter, r *http.Request) {
 
 	body, err := io.ReadAll(r.Body)
 
@@ -106,7 +105,7 @@ func (rs ProgramView) Execute(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (rs ProgramView) Show(w http.ResponseWriter, r *http.Request) {
+func (rs ProgramController) Show(w http.ResponseWriter, r *http.Request) {
 	programId := chi.URLParam(r, "id")
 
 	defer r.Body.Close()
@@ -128,31 +127,6 @@ func (rs ProgramView) Show(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-
-/* func (rs ProgramView) Update(w http.ResponseWriter, r *http.Request) {
-
-	programId := chi.URLParam(r, "id")
-	body, err := io.ReadAll(r.Body)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-	_, err = rs.program_service.Update(programId, body)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-	defer r.Body.Close()
-
-	w.Header().Set("Content-Type", "application/json")
-
-	if _, err := w.Write([]byte("Se ha modificado un registro con id" + programId)); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-} */
 
 func ProgramCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
