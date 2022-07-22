@@ -13,8 +13,9 @@
             </a>
             <form @submit.prevent class="d-flex position-relative">
                 <span></span>
-                <input v-model="program_name" class="form-control form-control-sm h-50 position-relative translate-middle-y top-50" type="text" placeholder="Program Name"
-                    aria-label="name">
+                <input v-model="program_name"
+                    class="form-control form-control-sm h-50 position-relative translate-middle-y top-50" type="text"
+                    placeholder="Program Name" aria-label="name">
             </form>
         </nav>
     </div>
@@ -71,6 +72,19 @@
             <div class="col-10">
                 <div id="drawflow" @drop="drop($event)" @dragover.prevent @dragenter.prevent></div>
             </div>
+            <div class="col-2">
+
+            </div>
+            <div class="col-10" v-show="hasExecute()">
+                <pre class="language-py" data-prismjs-copy="Copy code!!!" ><code class="language-py">{{ programOut.code }}</code></pre>
+            </div>
+            <div class="col-2">
+
+            </div>
+            <div class="col-10" v-show="hasExecute()">
+                <pre class="language-bash" v-if="programOut.error != ''"><code>{{ programOut.error }}</code></pre>
+                <pre class="language-bash" v-else><code>{{ programOut.output }}</code></pre>
+            </div>
         </div>
     </div>
 
@@ -90,7 +104,7 @@ import ifSt from '../components/ast/IfBody.vue'
 import operator from '../components/ast/Operator.vue'
 import variable from '../components/ast/Variable.vue'
 
-import base from '../assets/example_original.json'
+import base from '../assets/base.json'
 export default {
     mounted() {
         var drawflowID = document.getElementById("drawflow");
@@ -107,11 +121,15 @@ export default {
             let programRes = Object.assign({}, res.data["program"][0])
             this.program_name = programRes["program_name"];
             let drawflow = programToDrawFlow(programRes)
-            console.log(drawflow);
             this.editor.import(drawflow)
         })
+
     },
     methods: {
+        hasExecute() {
+            return this.programOut.code != ""
+        }
+        ,
         drop(evt) {
             this.createNode(evt.dataTransfer.getData("typeId"), evt)
         },
@@ -121,9 +139,6 @@ export default {
             evt.dataTransfer.setData("typeId", evt.target.getAttribute("data-node"));
         }
         ,
-        executeProgram() {
-            console.log(this.exportProgram());
-        },
         createNode(typeOfNode, evt) {
             let pos_x = evt.clientX
             let pos_y = evt.clientY
@@ -172,16 +187,12 @@ export default {
             this.editor.registerNode("else", elseSt);
             this.editor.registerNode("for", forLoop);
         },
-        storeProgram() {
-            storeProgram(this.exportProgram())
-                .then(function (res) {
-                    if (res.status == 200) {
-                        console.log(res.data);
-                    }
-                })
-                .catch(function (err) {
-                    console.log(err)
-                })
+        async storeProgram() {
+            let response = await storeProgram(this.exportProgram())
+        },
+        async executeProgram() {
+            let response = await executeProgram(this.exportProgram())
+            this.programOut = response.data
         },
         exportProgram() {
             let program = this.editor.export()["drawflow"]["Home"]
@@ -193,12 +204,14 @@ export default {
     props: {
         id: String
     },
-    data() {
-        return {
-            program: [],
-            program_name : "Program"
+    data: () => ({
+        program_name: "",
+        programOut: {
+            "code": "",
+            "error": "",
+            "output": ""
         }
-    },
+    })
 }
 </script>
 

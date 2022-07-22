@@ -3,21 +3,8 @@ import axios from "axios";
 const BASE_URL = "http://localhost:8082";
 
 var executeProgram = (program) => {
-    console.log(program);
-    /* 
-        let data = castProgram(program)
-        let dataJson
-        console.log(data);
-        axios.post(`${BASE_URL}/programs/execute`, data).then(function(res) {
-            if (res.status == 200) {
-                dataJson = res.data;
-            }
-            console.log(res);
-        })
-        .catch(function(err) {
-            dataJson = err
-        })
-        return dataJson */
+    let data = drawFlowToProgram(program);
+    return axios.post(`${BASE_URL}/programs/execute`, data)
 };
 
 var indexProgram = () => {
@@ -38,7 +25,6 @@ function drawFlowToProgram(drawflow) {
     let nodes = drawflow["data"];
     let nodeList = [];
     for (let clave in nodes) {
-        console.log(nodes[clave]);
         inAndOut(nodes[clave]);
         nodeList.push(nodes[clave]);
     }
@@ -73,6 +59,10 @@ function inAndOutReverse(node) {
     let inputs = {};
     let outputs = {};
 
+    if (node["data"] == undefined) {
+        node["data"] = {}
+    }
+
     if (node["inputs"] != undefined) {
         node["inputs"].forEach((input, index) => {
             inputs[`input_${index + 1}`] = input;
@@ -81,9 +71,6 @@ function inAndOutReverse(node) {
 
     if (node["outputs"] != undefined) {
         node["outputs"].forEach((output, index) => {
-            if (node["data"] == undefined) {
-                node["data"] = {}
-            }
             outputs[`output_${index + 1}`] = output;
         });
     }

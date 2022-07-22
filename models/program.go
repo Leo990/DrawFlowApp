@@ -61,7 +61,6 @@ func (p Program) ProgramLoopFor(node Node) string {
 }
 
 func (p Program) ProgramConditional(node Node) string {
-	fmt.Println(node.Data)
 	a := "if " + node.Data["variable"] + node.Data["type"] + node.Data["constant"] + ":\n"
 	Id, err := strconv.Atoi(node.Outputs[0].Connections[0].Node)
 	if err != nil {

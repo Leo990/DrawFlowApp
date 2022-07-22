@@ -1,9 +1,6 @@
 package services
 
 import (
-	"DrawFlowApp/dao"
-	"DrawFlowApp/models"
-
 	"bufio"
 	"context"
 	"encoding/json"
@@ -11,6 +8,9 @@ import (
 	"io"
 	"log"
 	"os/exec"
+
+	"DrawFlowApp/dao"
+	"DrawFlowApp/models"
 
 	"github.com/dgraph-io/dgo/v2"
 	"github.com/dgraph-io/dgo/v2/protos/api"
@@ -85,6 +85,7 @@ func (ps ProgramService) Execute(execute_program []byte) (map[string]string, err
 	json.Unmarshal(execute_program, &program)
 
 	strProgram := program.WriteProgram()
+	strProgram += "\nprint('Hola mundo')"
 
 	dao.WriteProgram(strProgram, path)
 
@@ -93,7 +94,7 @@ func (ps ProgramService) Execute(execute_program []byte) (map[string]string, err
 	if err != nil {
 		panic(err)
 	}
-	_, err = cmd.StderrPipe()
+	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		panic(err)
 	}
@@ -101,6 +102,7 @@ func (ps ProgramService) Execute(execute_program []byte) (map[string]string, err
 
 	response["code"] = strProgram
 	response["output"] = copyOutput(stdout)
+	response["error"] = copyOutput(stderr)
 	cmd.Wait()
 
 	return response, err
